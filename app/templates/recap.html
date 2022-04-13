@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block app_content %}
+<div class='row'>
+    <div class='col-12 p-5'>
+        <button class='simple-button btn btn-lg w-100 submit' id='pull_recap' type='button'>Pull recap</button>
+        <button class="btn simple-button loading_button hidden w-100" type="button" disabled>
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          Loading...
+        </button>
+    </div>
+    <div class='col-12 col-sm-6 col-md-4'>
+        <table id='monthly_rev' class='table'>
+            <thead>
+              <tr>
+                <th scope="col">Month</th>
+                <th scope="col">Revenue</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+{% block styles %}
+{{ super() }}
+{% endblock styles %}
+{% block scripts %}
+{{ super() }}
+<script>
+
+    function pull_recap(){
+        return new Promise((resolve,reject) => {
+            $.ajax({
+                type: 'POST',
+                url : "{{ url_for('main.pull_recap') }}",
+                success: function(result){
+                    resolve(result)
+                },
+                error: function (error) {
+                    reject(error)
+                }
+            })
+        });
+    };
+
+$('#pull_recap').click(function(){
+    $(this).siblings('.btn').removeClass('hidden');
+    $(this).addClass('hidden');
+    pull_recap().then(result => {
+        $(this).siblings('.btn').addClass('hidden');
+        $(this).removeClass('hidden');
+        var monthly_rev = JSON.parse(result['monthly_rev']);
+
+        var index = monthly_rev['index'];
+
+        var columns = monthly_rev['columns']
+        var month_idx = columns.indexOf('Month')
+        var rev_idx = columns.indexOf('Revenue')
+
+        var html_array = [];
+        for(i=0;i<index.length;i++){
+            var data = monthly_rev['data'][i];
+            var month = data[month_idx];
+            var rev = data[rev_idx];
+            var html = '<tr><td>'+month+'</td><td>'+rev+'</td></tr>';
+            console.log(html)
+            html_array.push(html);
+        };
+        var tbody = html_array.join('');
+        console.log(tbody)
+        $('#monthly_rev').children('tbody').html(tbody);
+    }).catch(error => {
+        $(this).siblings('.btn').addClass('hidden');
+        $(this).removeClass('hidden');
+        console.log(error)
+    })
+})
+
+$(document).ready(function(){
+})
+</script>
+{% endblock scripts %}

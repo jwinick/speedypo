@@ -1,0 +1,35 @@
+<div class='_table pt-5'>
+    <div class='d-flex flex-row flex-wrap p-3 pb-0'>
+            <div class='me-auto p-2 align-self-center'>
+                <label>Show results</label>
+                <select class='rows' name="rows">
+                    <option value="5" selected="">5</option>
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+
+            <div class='p-2'>
+                <input type="radio" class="btn-check basic static" autocomplete="off" checked>
+                <label class="btn table_mode basic static active">Basic</label>
+                <input type="radio" class="btn-check advanced static" autocomplete="off">
+                <label class="btn table_mode advanced static">Advanced</label>
+            </div>
+    </div>
+    <div class='table-responsive'>
+        <table class='table table-striped table-hover' border='1'>
+            <thead class='head'>
+            </thead>
+            <tbody class='body'>
+            </tbody>
+        </table>
+    </div>
+    <div class="p-3 d-flex flex-row pagination justify-content-center">
+        <p class="prev pag static">&laquo;</p>
+        <div class='pages flex-row d-flex overflow-auto'>
+        </div>
+        <p class="next pag static">&raquo;</p>
+    </div>
+    <p class='showing_rows text-center'></p>
+</div>

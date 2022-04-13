@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% block title %}
+  <title>SpeedyPO</title>
+  {% endblock title %}
+  <div id='styles'>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous"> -->
+    <script src="https://kit.fontawesome.com/a4372304b0.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='jsCalendar.css') }}">
+
+    {% block styles %}
+    {% endblock styles %}
+  </div>
+</head>
+{% block navbar %}
+<nav class="navbar sticky-top navbar-expand-sm navbar-light"  style="background-color: #f1f1f1;">
+  <div id="speedy_navbar" class="container-fluid px-5">
+    <a id='nav_homepage' href="#" class="navbar-brand nav-link view view_homepage" style='color:#0038B8; cursor: pointer;'>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#0038B8" class="bi bi-box-seam text-black" viewBox="0 0 16 16">
+        <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7l-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z"/>
+      </svg>
+      SpeedyPO
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse py-sm-0 py-3" id="navbarTogglerDemo02">
+      <ul class="navbar-nav me-auto">
+        {% if current_user.is_anonymous  == false%}
+        <li class="nav-item p-3">
+          <a class="view view_dashboard nav-link p-2 nav_item d-flex justify-content-center" id='nav_dashboard' style='cursor: pointer;'>Dashboard</a>
+        </li>
+        {% endif %}
+      </ul>
+      {% if current_user.is_anonymous %}
+      <div class="nav-item p-3">
+        <a class="view view_book_demo nav-link p-2 nav_item btn primary-button demo d-flex justify-content-center" id='view_book_demo' style='cursor: pointer' href="#">Book a Demo</a>
+      </div>
+      <div class="nav-item p-3">
+        <a class="nav-link p-2 nav_item view view_login d-flex justify-content-center" id='nav_login' href='#'>Login</a>
+      </div>
+      {% else %}
+      <div class="nav-item p-3">
+        <a class="view view_account nav-link p-2 nav_item d-flex justify-content-center" id='nav_account' href="#">Account</a>
+      </div>
+      <div class='nav-item p-3'>
+        <a class="nav-link p-2 me-2 navbar-text nav_item d-flex justify-content-center" id='nav_logout' href="{{ url_for('auth.logout') }}">Logout</a>
+      </div>
+      {% endif %}
+    </div>
+</div>
+</nav>
+
+{% endblock navbar %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<div class=" col-6 offset-3 alert alert-primary text-center" role="alert">
+  {{ message }}
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+<body>
+  {% block app_content %}
+  {% endblock app_content %}
+  {% block scripts %}
+  <div id='scripts'>
+    <script src="{{ url_for('static', filename='jquery.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js" integrity="sha384-q2kxQ16AaE6UbzuKqyBE9/u/KzioAlnx2maXQHiDX9d4/zp8Ok3f+M7DPm+Ib6IU" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.min.js" integrity="sha384-pQQkAEnwaBkjpqZ8RU1fF1AKtTcHJwFl3pblpTlHXybJjHpMYo79HY3hIi4NKxyj" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static',filename='scripts.js')}}"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script>$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='crs.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='currency.min.js')}}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='jsCalendar.js')}}"></script>
+  </div>
+  {% endblock scripts %}
+</body>
+</html>

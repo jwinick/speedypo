@@ -1,0 +1,9 @@
+Dear {{ first_name }},
+ 
+Welcome to SpeedyPO. Please use the following link to register.
+ 
+{{ url_for('main.index',view='register',demo_code=demo_code) }}
+ 
+Sincerely,
+ 
+The SpeedyPO Team

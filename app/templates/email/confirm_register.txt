@@ -1,0 +1,9 @@
+Dear {{ user_name }},
+
+To confirm your account registration click on the following link:
+
+{{ url_for('auth.confirm_register', token=token, _external=True) }}
+
+Sincerely,
+
+The Speedy PO Team

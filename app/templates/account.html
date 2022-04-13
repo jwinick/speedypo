@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block app_content %}
+<div id='account' class='container px-5 py-5 hidden overflow-hidden'>
+    <div class='row g-5'>
+        <div class='col-12'>
+            <p class='text-center text-capitalize fs-1' style='color: #0038B8 !important;'>{{ user.username }}</p>
+        </div>
+        <div class='col-12'>
+            <div id='password' class='d-flex flex-wrap reversed-primary-color section overflow-auto align-items-center' style='border-style:solid;'>
+                    <div class='p-3'><span class='fs-2 fw-bold'>Password</span></div>
+                    <div class='p-3 me-auto'><i class="fas fa-lock fa-2x"></i></div>
+                    <div class='p-3'><button class='btn primary-button account_button'>Change Password</button></div>
+            </div>
+        </div>
+        <div class='col-12'>
+            <div id='membership' class='d-flex flex-wrap reversed-primary-color section overflow-auto align-items-center' style='border-style:solid;'>
+                    <div class='p-3'><span class='fs-2 fw-bold'>Membership</span></div>
+                    <div class='p-3 me-auto'><i class="fas fa-users fa-2x"></i></div>
+                    <div class='p-3'><button class='btn primary-button account_button'>Membership Preferences</button></div>
+            </div>
+        </div>
+        <div class='col-12'>
+            <div id='account_settings' class='d-flex flex-wrap reversed-primary-color section overflow-auto align-items-center' style='border-style:solid;'>
+                    <div class='p-3'><span class='fs-2 fw-bold'>Settings</span></div>
+                    <div class='p-3 me-auto'><i class="fas fa-user-cog fa-2x"></i></div>
+                    <div class='p-3'><button class='btn primary-button account_button'>Account Settings</button></div>
+            </div>
+        </div>
+        <div class='col-12'>
+            <div class='d-flex flex-row justify-content-center'>
+               <button type='button' class="btn btn-lg primary-color" id='back'>Back</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include '_form_modal.html' %}
+{% endblock app_content %}
+{% block scripts %}
+    {{ super() }}
+    <script>
+    var formModal = new bootstrap.Modal(document.getElementById('formModal'))
+    $('#back').click(function(){
+        url = '{{ url_for("main.myorders")}}'
+        window.location = url
+    });
+
+    $('#account').on('click','.account_button', function(){
+        var section = $(this).parents('.section').attr('id');
+
+        console.log(section)
+        $('#formModal').find('.modal-footer').children('.loading_button').addClass('hidden');
+        $('#formModal').find('.modal-footer').children('.submit').removeClass('hidden');
+
+       if(section == 'password'){
+            var url = "{{ url_for('auth.change_password') }}"
+            $.get(url).done(function(data){
+                var form = $(data).find('#change_password_form')
+                console.log(form)
+                $('#formModal').find('.modal-body').html(form)
+                $('#formModal').find('.modal-header').removeClass('hidden');
+                $('#formModal').find('.title').html("Change password")
+            });
+
+
+        };
+
+        formModal.show()
+
+    })
+
+    $(document).ready(function(){
+      $('#speedy_navbar').find('.nav-link.active').removeClass('active')
+      $('#speedy_navbar').find('#account').addClass('active')
+    })
+    </script>
+{% endblock scripts %}

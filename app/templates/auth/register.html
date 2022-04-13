@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% block app_content %}
+<div class='container px-4 py-4 overflow-hidden'>
+    <div class='row g-5 mt-4'>
+    <h1 class='text-center reversed-primary-color display-4'>Register</h1>
+    <div class='col-12 col-md-6 offset-md-3'>
+    <div id='errors' class='alert'>
+        <p id='username_taken' class='hidden'>This username is already taken, please try another!</p>
+        <p id='email_taken' class='hidden'>An account already exists with this email!</p>
+        <p id='invalid_email' class='hidden'>Please enter a valid email address!</p>
+        <p id='invalid_username' class='hidden'>Please enter a valid username!</p>
+        <p id='invalid_password' class='hidden'>Please enter a valid password!</p>
+        <p id='password_no_match' class='hidden'>Passwords must match!</p>
+        <p id='admin_code_required' class='hidden'>Nice try bruh...</p>
+        <p id='unkown_error' class='hidden'>Unknown Error</p>
+        <p id='invalid_demo_code' class='hidden'>Please enter a valid demo code!</p>
+    </div>
+    <form id='register_form'>
+        <div class='mb-3 pb-4'>
+        <label for='email'>Enter Email:</label>
+        <input class="form-control form-control-lg" id='email' name='email' type='text'>
+        </div>
+        <div class='mb-3 pb-4'>
+        <label for='username'>Enter Username:</label>
+        <input class="form-control form-control-lg" id='username' name='username' type='text'>
+        </div>
+        <div class='mb-3 pb-4'>
+        <label for='psw'>Enter Password:</label>
+        <input class="form-control form-control-lg" id='psw' name='psw' type='password'>
+        </div>
+        <div class='mb-3 pb-4'>
+        <label for='psw_2'>Repeat Password:</label>
+        <input class="form-control form-control-lg" id='psw_2' name='psw_2' type='password'>
+        </div>
+        <div class='mb-3 pb-4 col-12 col-md-4'>
+            <div id='buttons'>
+                <input type='button' id='submit_register_form' class='btn btn-lg primary-button submit_form' value='Submit'>
+                <button class="btn btn-lg primary-color loading_button hidden" type="button" disabled>
+                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    Loading...
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <p>Already have an account? <a href="{{ url_for('auth.login') }}">Click to login!</a></p>
+    </div>
+</div>
+</div>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script>
+
+    function validateEmail(){
+        return new Promise((resolve) => {
+        try{
+            var email = $('#email').val();
+            var email = email.toLowerCase();
+
+            var reg_ex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+            var validEmail = reg_ex.test(email);
+
+            if(validEmail == false){
+                //resolve('invalid')
+                $('#invalid_email').removeClass('hidden');
+            }else{
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ url_for('auth.find_email') }}",
+                    contentType: 'application/json;charset=UTF-8',
+                    data: JSON.stringify({'user_email':email},null,'\t'),
+                    success: function(result){
+                        if(result == 'pass'){
+
+                            $('#invalid_email').addClass('hidden');
+                            resolve('pass')
+                        }else{
+                            resolve('pass')
+                        }
+
+                    },
+                    error: function(){
+                        resolve('fail')
+                    },
+            })
+            };
+        }catch{
+            resolve('fail')
+        }
+    })};
+
+
+    function validateUsername(){
+        return new Promise((resolve) => {
+            try{
+                var username = $('#username').val();
+
+                if(username.length == 0){
+                    $('#invalid_username').removeClass('hidden')
+                }else{
+                    var username = username.toLowerCase()
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{ url_for('auth.find_username') }}",
+                        contentType: 'application/json;charset=UTF-8',
+                        data: JSON.stringify({'user_name':username},null,'\t'),
+                        success: function(result){
+
+                            if(result == 'pass'){
+                                $('#invalid_username').addClass('hidden');
+                                resolve('pass')
+                            }else{
+                                resolve('pass')
+                            }
+
+                        },
+                        error: function(){
+                            resolve('fail')
+                        },
+                })
+
+                }
+            }catch{
+                resolve('fail')
+            }
+
+
+    })};
+
+    function validatePassword(){
+        return new Promise((resolve) => {
+            try{
+                var psw = $('#psw').val();
+                var psw_2 = $('#psw_2').val();
+
+                if(psw.length == 0){
+                    $('#invalid_password').removeClass('hidden');
+                    resolve('fail')
+                }else if(psw != psw_2){
+                    $('#invalid_password').addClass('hidden');
+                    $('#password_no_match').removeClass('hidden');
+                    resolve('fail')
+                }else{
+                    $('#invalid_password').addClass('hidden');
+                    $('#password_no_match').addClass('hidden');
+                    resolve('pass')
+                }
+                return reult
+            }catch(error){
+                resolve('fail')
+            }
+    })};
+
+    function register(){
+        return new Promise((resolve,reject) => {
+            var email = $('#email').val();
+            var email = email.toLowerCase();
+            var username = $('#username').val();
+            var username = username.toLowerCase();
+            var psw = $('#psw').val();
+            var demo_code = '{{ demo_code }}';
+            console.log(demo_code)
+                $.ajax({
+                        type: 'POST',
+                        url: "{{ url_for('auth.signup') }}",
+                        contentType: 'application/json;charset=UTF-8',
+                        data: JSON.stringify({'user_name':username,'user_email':email,'psw':psw,'demo_code':demo_code},null,'\t'),
+                        success: function(result){
+                                console.log(result);
+                                if(result == 'fail'){
+                                    reject('registeration failed')
+                                }else if(result == 'demo_code'){
+                                    $('#invalid_demo_code').removeClass('hidden')
+                                    reject('demo')
+                                }else{
+                                    resolve(result);
+                                }
+
+                            },
+                        error: function (error) {
+                            reject(error)
+                        }
+            })
+
+        })
+    };
+
+    function get_register_id(obj){
+        return new Promise((resolve,reject) => {
+            var username = obj['username']
+            var email = obj['email']
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ url_for('auth.register_get_id') }}",
+                    contentType: 'application/json;charset=UTF-8',
+                    data: JSON.stringify({'username':username,'email':email},null,'\t'),
+                    success: function(result){
+                        if(result == 'fail'){
+                            reject('get_id failed')
+                        }else{
+                            resolve(result)
+                        }
+                    },
+                    error: function(){
+                        reject('get_id failed')
+                    }
+
+                })
+        })
+    }
+
+    function send_confirm_register_token(user_id){
+        return new Promise((resolve,reject) => {
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ url_for('auth.send_confirm_register_token') }}",
+                    contentType: 'application/json;charset=UTF-8',
+                    data: JSON.stringify({'user_id':user_id},null,'\t'),
+                    success: function(result){
+                        resolve(result)
+                        window.location.href = "{{ url_for('auth.login', type='unconfirmed')}}";
+                    },
+                    error: function(){
+                        reject('send token failed')
+                    }
+
+            })
+            })};
+
+
+    function allPass(array){
+        return new Promise((resolve,reject) => {
+        var length = array.length;
+        for(i=0;i<length;i++){
+            if(array[i] != 'pass'){
+                reject('validation_error')
+            };
+        }
+        resolve('pass')
+    })};
+
+
+    $('#submit_register_form').click(function(){
+
+        $('.submit_form').addClass('hidden')
+        $('.loading_button').removeClass('hidden')
+
+        Promise.all([validateEmail(),validateUsername(),validatePassword()])
+        .then(values => {return allPass(values)})
+        .then(result => {if(result == 'pass'){
+            return register()}})
+        .then(result => {
+            return get_id(result)})
+        .then(result => {
+            return send_confirm_register_token(result)})
+        .then(result => {
+            console.log(result)
+            $('.submit_form').removeClass('hidden')
+            $('.loading_button').addClass('hidden')})
+        .catch(error => {
+            $('.submit_form').removeClass('hidden')
+            $('.loading_button').addClass('hidden')
+            console.log(error)})
+    });
+
+    </script>
+{% endblock scripts %}

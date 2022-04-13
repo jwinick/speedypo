@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block app_content %}
+
+<div class='container px-5 py-5 overflow-hidden'>
+    <div class='col-md-6 offset-md-3'>
+        <h1 style='color: #0038B8;'>Sign In</h1>
+        <div id='type' class='py-3'>
+            <div id='redirect' class="hidden py-3 col-12 alert alert-primary text-center" role="alert">
+            Please log in to access this page.
+            </div>
+            <div id='user_confirmed' class='success hidden col-12 alert alert-primary text-center'>Email confirmed!</div>
+            <div id='unconfirmed' class='hidden col-12 alert alert-primary text-center'>We have sent an email with a confirmation link to your email address. In order to complete the sign-up process, please click the confirmation link.
+            <br><br>
+            If you do not receive a confirmation email, please check your spam folder. Also, please verify that you entered a valid email address in our sign-up form.</div>
+            <div id='invalid_link' class='hidden col-12 alert alert-danger text-center'>Invalid link!</div>
+            <div id='no_name' class='hidden col-12 alert alert-primary text-center'>Please enter your username or email!</div>
+            <div id='no_psw' class='hidden col-12 alert alert-primary text-center'>Please enter your password!</div>
+            <div id='invalid_email' class='hidden alert col-12 alert-primary text-center'>There is no account with this email and password!</div>
+            <div id='invalid_username' class='hidden alert col-12 alert-primary text-center'>There is no account with this username!</div>
+            <div id='invalid_password' class='hidden alert col-12 alert-primary text-center'>Password incorrect!</div>
+        </div>
+        <form id='login_form' class='py-3'>
+            <label for='username'>Enter Username or Email:</label>
+            <br>
+            <input class="form-control form-control-lg" id='username' name='username' type='text'>
+            <br><br>
+            <label for='psw'>Enter Password:</label>
+            <br>
+            <input id='psw' name='psw' type='password' class="form-control form-control-lg">
+            <br>
+            <div id='buttons' class='py-3'>
+                <input type='button' id='submit_login_form' class='submit_form btn btn-lg primary-color' value='Submit'>
+                <button class="btn primary-color btn-lg loading_button hidden" type="button" disabled>
+                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  Loading...
+              </button>
+            </div>
+        </form>
+          <p class='py-3'>Forgot password? <a href="{{ url_for('auth.reset_password_request') }}">Click to reset!</a></p>
+
+          <p class='py-3'>New User? <a href="{{ url_for('main.index', view='demo') }}">Book a Demo!</a></p>
+    </div>
+</div>
+  {% endblock %}
+  {% block scripts %}
+  {{ super() }}
+  <script>
+    console.log("{{ url_for('main.index', view='demo') }}")
+
+    function validateLogin(){
+
+        $('.submit_form').addClass('hidden')
+        $('.loading_button').removeClass('hidden')
+
+        $('#type > div').addClass('hidden');
+
+        var username = $('#username').val();
+        var username = username.toLowerCase()
+        var psw = $('#psw').val();
+
+        console.log(username)
+        console.log(psw)
+
+        if(username.length == 0 ){
+            $('#no_name').removeClass('hidden');
+            $('.submit_form').removeClass('hidden')
+            $('.loading_button').addClass('hidden')
+        }else if(psw.length == 0){
+            $('#no_name').addClass('hidden');
+            $('#no_psw').removeClass('hidden');
+            $('.submit_form').removeClass('hidden')
+            $('.loading_button').addClass('hidden')
+        }else{
+            console.log('call ajax')
+            $.ajax({
+                type: 'POST',
+                url: "{{ url_for('auth.post_login') }}",
+                contentType: 'application/json;charset=UTF-8',
+                data: JSON.stringify({'user_name':username,'psw':psw},null,'\t'),
+                success: function(result){
+                    $('.submit_form').removeClass('hidden')
+                    $('.loading_button').addClass('hidden')
+                    console.log(result)
+                    if(result == 'pass'){
+                        window.location.href = "{{ url_for('main.index',view='dashboard')}}";
+                    }else if(result == 'invalid'){
+                        $('#invalid_username').removeClass('hidden');
+                    }else if(result == 'email invalid'){
+                        $('#invalid_email').removeClass('hidden');
+                    }else if(result == 'unconfirmed'){
+                        $('#unconfirmed').removeClass('hidden');
+                    }else if(result == 'empty'){
+                        $('#no_name').removeClass('hidden');
+                    }else if(result == 'invalid password'){
+                        $('#invalid_password').removeClass('hidden');
+                    }else{
+                        console.log('Error')
+                    };
+
+                }
+            })
+        };
+    };
+
+    $('#nav_dashboard').on('click',function(){
+        $('#type > div').addClass('hidden');
+        $('#redirect').removeClass('hidden');
+    })
+
+
+
+    $(document).ready(function(){
+        $('#speedy_navbar').find('#nav_login').addClass('active');
+        $('#speedy_navbar').find('.nav-link.active').removeClass('active');
+        $('#type > div').addClass('hidden');
+        if('{{ type }}' == 'redirect'){
+            $('#redirect').removeClass('hidden');
+        }else if('{{ type }}' == 'unconfirmed'){
+            $('#unconfirmed').removeClass('hidden');
+        }else if('{{ type }}' == 'confirmed'){
+            $('#user_confirmed').removeClass('hidden');
+        };
+    });
+
+
+    $('#submit_login_form').click(function(){
+        validateLogin()
+
+    }
+    );
+
+</script>
+{% endblock scripts %}
